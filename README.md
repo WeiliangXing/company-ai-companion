@@ -1,14 +1,37 @@
 # Company AI Companion
 
-Two runnable components from a voice assistant built for networking conversations. In the full application, a guest can talk through a business need, research can run in the background, and a reviewed contact can lead to a follow-up draft.
+At a networking event, a guest can say their email address and then correct it on screen while the voice assistant is still talking. A delayed tool call could otherwise put the old spelling back. Here the contact form has a revision number. If someone types while the model is preparing an edit, the model has to read the form again.
 
-## Try the public edition
+This is the runnable public edition of my networking companion. The browser renders a Three.js avatar and connects to a realtime model over WebRTC. A Cloudflare Worker manages host and guest sessions, calls research tools, and stores contacts and follow-up drafts in D1. Northstar Studio is the fictional host used in this edition.
 
-With Node.js 22 or newer, run `npm test`. The tests use simulated conversation events, an in-memory form and example addresses. They exercise the same JavaScript modules as the hosted app and require no account, dependencies, microphone or API key.
+## Run locally
 
-* **Voice turn-taking** — replay guest speech, playback and tool events. The controller handles short intentional interruptions, ignores transcript echoes and waits for a guest to finish before continuing a tool response.
-* **Contact capture** — the assistant reads a revision before editing a form. If the guest types a correction while the assistant is speaking, the revision changes and the stale update is rejected. An explicit save persists the reviewed fields before opening a draft.
+Use Node.js 24 and npm. From a fresh checkout:
 
-Start with the first test in `test/contact-canvas.test.js`. It recreates a user correcting a misheard email address. The last test exercises what happens when saving fails.
+```sh
+npm ci
+npm run setup
+npm run dev
+```
 
-This public edition is an extract of the independent project, developed iteratively with Codex. Live voice, research, email delivery and the hosted database belong to the full application.
+Open **http://127.0.0.1:5203/start.html** and enter the owner code printed during setup. Setup generates local credentials and applies the D1 migrations. On subsequent runs the code is in your local `.dev.vars`.
+
+**Try it without a provider account.** Edit the sample guest, save the contact, change the follow-up text, then save the draft. Both writes go through the Worker into local D1. The starting draft on this page comes from a template. The sample company tour is also available at `/business/`.
+
+**Try the voice workflow.** Add your own `OPENAI_API_KEY` to `.dev.vars` and restart the dev server. Set `REALTIME_MODEL` and `SEARCH_MODEL` to models available to your account if needed. Unlock the workspace, open the voice companion, press Start and allow microphone access. Ask it to start a networking conversation. A guest can ask about the company, request professional research, or exchange contact details. Research requires a completed response with source citations. Voice and search use your provider account.
+
+Delivery is optional. The default local setup saves drafts only. The mail adapters and device-activation check are included for operators who configure a sender. Use your own D1 binding and secrets for a deployment.
+
+## Inspect the implementation
+
+| Question | Implementation |
+| --- | --- |
+| What happens when a guest types during an agent edit? | [Contact canvas](public/contact-canvas.js) and [race-condition tests](test/contact-canvas.test.js) |
+| How does the assistant handle an interruption? | [Conversation guard](public/conversation-guard.js) and [realtime event handling](public/app.js) |
+| Where does company research run? | [Research adapter and source handling](src/guest-research.js) |
+| What separates guest access from the host workspace? | [Worker session and route handlers](src/worker.js) |
+| How do edits survive a new session? | [Draft storage and revision checks](src/workspace.js) and [schema](migrations/) |
+
+## Verify
+
+`npm test` runs the automated suite with synthetic data and provider doubles. With the local server running, use a second terminal in the checkout to run `npm run test:flow`. It creates a fictional guest, saves their contact, ends the session, then saves and reopens a draft through the HTTP API. It leaves those sample records in local D1.

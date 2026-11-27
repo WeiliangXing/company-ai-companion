@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Start · Company AI Companion</title><link rel="stylesheet" href="/start.css">
+<main><h1>Company AI Companion</h1>
+<form id="login"><label>Local owner code <input name="code" type="password" required autocomplete="current-password"></label><button>Unlock workspace</button></form>
+<section hidden id="workspace"><h2>Try a guest follow-up</h2><p>Edit the fictional guest, then save their contact and review a follow-up draft. This exercise uses your local database and works without an AI key.</p>
+<form id="contact"><label>Guest name <input name="name" value="Sam Rivera" required></label><label>Email <input type="email" name="email" value="sam@example.org" required></label><button>Save contact</button></form>
+<form hidden id="draft"><label>Follow-up draft <textarea name="body" rows="5" required></textarea></label><button>Save draft</button></form>
+<p><a href="/">Open voice companion</a> · <a href="/business/">Explore the sample company</a></p></section><p role="status" id="status"></p></main><script type="module" src="/start.js"></script></html>

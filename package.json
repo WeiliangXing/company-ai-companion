@@ -1,1 +1,15 @@
-{"name":"company-ai-companion","private":true,"type":"module","scripts":{"test":"node --test test/*.test.js"}}
+{
+  "name": "company-ai-companion",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 127.0.0.1 --port 5203",
+    "test": "node --test test/*.test.js",
+    "deploy": "wrangler deploy",
+    "setup": "node scripts/setup.mjs && wrangler d1 migrations apply DB --local",
+    "test:flow": "node test/local-flow.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
